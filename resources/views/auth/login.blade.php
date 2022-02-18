@@ -66,6 +66,56 @@
                     </div>
                 </div>
 
+                {{-- box password --}}
+                     <div class="card o-hidden border-0 shadow-lg my-5">
+                        <div class="card-body p-0">
+                            <!-- Nested Row within Card Body -->
+                            <div class="row">
+                                {{-- <div class="col-lg-6 d-none d-lg-block bg-login-image"></div> --}}
+                                <div class="col-lg-12">
+                                    <div class="p-5">
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                        </div>
+                                        
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Password</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>tm1</td>
+                                                    <td>tm1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>tm2</td>
+                                                    <td>tm2</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>tm3</td>
+                                                    <td>tm3</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>gtm1</td>
+                                                    <td>gtm1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>kdiv</td>
+                                                    <td>kdiv</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{-- box password --}}
+
             </div>
 
         </div>
