@@ -66,10 +66,6 @@ class HomeController extends Controller
                 ->get();
                 // end penjualan kdiv
         }
-
-        // dd($penjualan);
-        
-        
         
         return view('dashboard', compact(
             'jml_sp_baru',

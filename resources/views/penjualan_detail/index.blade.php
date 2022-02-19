@@ -3,7 +3,7 @@
 @push('css')
 <style>
     .dt-buttons {
-        /* display: none; */
+        display: none;
         position: inherit;
         text-align:right;
         margin: left;
@@ -114,7 +114,7 @@
                                 <div class="form-group row">
                                     <label for="nosp" class="col-lg-3 control-label">Nosp</label>
                                     <div class="col-lg-8">
-                                        <input type="text" name="nosp" id="nosp" class="form-control">
+                                        <input type="text" name="nosp" id="nosp" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -126,7 +126,7 @@
                                 <div class="form-group row">
                                     <label for="alamat" class="col-lg-3 control-label">alamat</label>
                                     <div class="col-lg-8">
-                                        <input type="text" name="alamat" id="alamat" class="form-control">
+                                        <input type="text" name="alamat" id="alamat" class="form-control" required>
                                     </div>
                                 </div>
                                 {{-- live ajax --}}
@@ -152,7 +152,7 @@
                                     <div class="form-group row">
                                         <label for="kecamatan" class="col-lg-3 control-label">kecamatan</label>
                                         <div class="col-lg-8">
-                                            <select class="form-select form-select-lg" name="kecamatan" id="kecamatan">
+                                            <select class="form-select form-select-lg" name="kecamatan" id="kecamatan" required>
                                                 <option selected>---Pilih Kecamatan---</option>
                                             </select>
                                         </div>
@@ -160,7 +160,7 @@
                                     <div class="form-group row">
                                         <label for="kelurahan" class="col-lg-3 control-label">kelurahan</label>
                                         <div class="col-lg-8">
-                                            <select class="form-select form-select-lg" name="kelurahan" id="kelurahan">
+                                            <select class="form-select form-select-lg" name="kelurahan" id="kelurahan" required>
                                                 <option selected>---Pilih kelurahan---</option>
                                             </select>
                                         </div>
@@ -169,13 +169,13 @@
                                 <div class="form-group row">
                                     <label for="no_tlp" class="col-lg-3 control-label">no_tlp</label>
                                     <div class="col-lg-8">
-                                        <input type="text" name="no_tlp" id="no_tlp" class="form-control">
+                                        <input type="text" name="no_tlp" id="no_tlp" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="sts_beli" class="col-lg-3 control-label">sts_beli</label>
                                     <div class="col-lg-8">
-                                        <select name="sts_beli" id="sts_beli">
+                                        <select name="sts_beli" id="sts_beli" required>
                                             <option value=""> ==== Pilih Tipe Beli == </option>
                                             <option value="1"> Cash </option>
                                             <option value="2"> Credit </option>
@@ -185,13 +185,13 @@
                                 <div class="form-group row">
                                     <label for="tgl_jual" class="col-lg-3 control-label">tgl_jual</label>
                                     <div class="col-lg-8">
-                                        <input type="text" name="tgl_jual" id="tgl_jual" class="form-control">
+                                        <input type="text" name="tgl_jual" id="tgl_jual" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="sales" class="col-lg-3 control-label">sales</label>
                                     <div class="col-lg-8">
-                                        <select name="sales" id="sales">
+                                        <select name="sales" id="sales" required>
                                             <option value="">---Pilih Sales---</option>
                                             @foreach ($marketing as $item)
                                             <option value="{{ $item->nik_sales }}">{{ $item->nama_sales }} / {{ $item->nik_sales }}</option>

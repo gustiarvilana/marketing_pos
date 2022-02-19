@@ -68,7 +68,7 @@ class VerifController extends Controller
             })
             ->addColumn('aksi', function($penjualan){
                 return '
-                        <a href="'.route('verif.detail', $penjualan->nosp).'" class="btn btn-info btn-xs">Detail</a>
+                        <a href="'.route('verif.detail', $penjualan->nosp).'" class="btn btn-info btn-xs">Verifikasi</a>
                     ';
             })
             ->rawColumns(['status','aksi'])
@@ -113,7 +113,7 @@ class VerifController extends Controller
         $now=date('Ymd');
         $data = $request->except(['_token']);
         $data['tgl_verif'] =$now;
-        $data['verifikator'] =Auth::user()->nik;
+        $data['verifikator'] = $request->input('nama_verif');
         // dd($data);
         DB::table('tbl_penjualan_master')->where('nosp',$id)->update($data);
 

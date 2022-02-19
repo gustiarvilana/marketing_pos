@@ -177,10 +177,16 @@
                                         <form action="{{ route('verif.show',$customer->nosp) }}" method="put">
                                             @csrf
                                             <div class="row">
+                                                 <div class="col-xs-12 col-sm-12 col-md-12 justify-content-center">
+                                                    <div class="form-group">
+                                                        <strong>Nama verifikator :</strong> 
+                                                        <input type="text" name="nama_verif" id="nama_verif" class="form-control" placeholder="Nama Verifikator" required>
+                                                    </div>
+                                                </div>
                                                 <div class="col-xs-12 col-sm-12 col-md-12">
                                                     <div class="form-group">
                                                         <strong>Status Verifikasi</strong>
-                                                        <select name="sts_flow" id="sts_flow" class="form-control">
+                                                        <select name="sts_flow" id="sts_flow" class="form-control" required>
                                                             <option value=""> --Pilih Status-- </option>
                                                             <option value="2"> Lolos </option>
                                                             <option value="20"> Tidak Lolos </option>
@@ -191,7 +197,7 @@
                                                     <div class="form-group">
                                                         <strong>Keterangan</strong>
                                                         <textarea class="form-control" style="height:75px" name="ket_verif"
-                                                            placeholder="ket_verif"></textarea>
+                                                            placeholder="ket_verif" required></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-xs-12 col-sm-12 col-md-12 text-center">

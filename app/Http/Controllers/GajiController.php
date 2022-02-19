@@ -59,130 +59,117 @@ class GajiController extends Controller
     {
         
         if (Auth::user()->level == 32 || Auth::user()->level == 23 || Auth::user()->level == 25) {
-            
-            $periode_now = DB::table('tbl_periode')
-                ->where('tgl_akhir',null)
-                ->orderBy('tgl_awal','asc')
-                ->first();
 
             $data_sales = DB::table('tbl_group_marketing as a')
                 ->leftJoin('tbl_karyawan as b','a.nik_sales','b.nik')
                 ->where('b.status',1)
-                ->distinct()->get('b.nik');
+                ->distinct()->pluck('b.nik');
             $data_tm = DB::table('tbl_group_marketing as a')
                 ->leftJoin('tbl_karyawan as b','a.nik_tm','b.nik')
                 ->where('b.status',1)
-                ->distinct()->get('b.nik');
+                ->distinct()->pluck('b.nik');
             $data_gtm = DB::table('tbl_group_marketing as a')
                 ->leftJoin('tbl_karyawan as b','a.nik_gtm','b.nik')
                 ->where('b.status',1)
-                ->distinct()->get('b.nik');
+                ->distinct()->pluck('b.nik');
             $data_kdiv = DB::table('tbl_group_marketing as a')
                 ->leftJoin('tbl_karyawan as b','a.nik_kdiv','b.nik')
                 ->where('b.status',1)
-                ->distinct()->get('b.nik');
+                ->distinct()->pluck('b.nik');
 
             DB::table('tbl_gaji')->where('tgl_close_tm',null)->delete();
             
             //gaji sales
-                foreach ($data_sales as $nik_array) {
+                $penjualan_sales = DB::table('tbl_penjualan_master as a')
+                ->whereIn('sales',$data_sales)
+                ->where('sts_flow',4)
+                ->leftJoin('tbl_group_marketing as b','a.sales','b.nik_sales')
+                ->leftJoin('tbl_karyawan as c','a.sales','c.nik')
+                ->leftJoin('tbl_jabatan as d','c.jabatan','d.kode_jabatan')
+                ->leftJoin('tbl_periode as e','a.t_manager','e.nik_tm')
+                ->where('tgl_akhir',null)
+                ->get();
+                    foreach ($penjualan_sales->unique('sales') as $sales) {   
+                        // dd($sales);  
+                        $nominal_penjualan_sales=$penjualan_sales->where('sales',$sales->sales)->sum('total_harga');
+                        $cn_sales =DB::table('tbl_cn')->where('sales',$sales->sales)->sum('nominal');
+                        $penjualan_bersih_sales = $nominal_penjualan_sales - $cn_sales;
+                        // insentif
+                            if ($penjualan_bersih_sales >= 17774999) {
+                                $persen_sales = 8;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 0;
+                            }elseif ($penjualan_bersih_sales >= 22665000) {
+                                $persen_sales = 10;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 0;
+                            }elseif ($penjualan_bersih_sales >= 28650000) {
+                                $persen_sales = 12;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 0;
+                            }elseif ($penjualan_bersih_sales >= 33650000) {
+                                $persen_sales = 14;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 0;
+                            }elseif ($penjualan_bersih_sales >= 38999999) {
+                                $persen_sales = 16;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 0;
+                            }elseif ($penjualan_bersih_sales >= 39000000) {
+                                $persen_sales = 19;
+                                $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
+                                $bonus_sales = 500000;
+                            }else{
+                                $persen_sales = 0;
+                                $insentif_sales = 0;
+                                $bonus_sales = 0;
+                            }
+                        // end insentif
+                        $gaji_sales = $insentif_sales + $bonus_sales;
+                        $kasbon_sales = DB::table('tbl_kasbon')->where('nik',$sales->nik)->sum('nom_kasbon');
+                        $total_gaji_sales = $gaji_sales - $kasbon_sales;
 
-                    $sales_detail = DB::table('tbl_karyawan as a')->where('nik',$nik_array->nik)
-                        ->leftJoin('tbl_jabatan as b', 'a.jabatan', 'b.kode_jabatan')
-                        ->get();
-                    
-                        foreach ($sales_detail as $sales_array) {
-                            $penjualan_sales = DB::table('tbl_penjualan_master')->where('sales',$sales_array->nik)
-                            ->get();
-                            $up_level = $penjualan_sales->first();
-                            
-                            $total_penjualan_sales = $penjualan_sales->sum('total_harga');
-                            $cn_sales = $penjualan_sales->sum('cn');
-                            $penjualan_bersih_sales = $total_penjualan_sales - $cn_sales;
-
-                            // insentif
-                                if ($penjualan_bersih_sales >= 17774999) {
-                                    $persen_sales = 8;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 0;
-                                }elseif ($penjualan_bersih_sales >= 22665000) {
-                                    $persen_sales = 10;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 0;
-                                }elseif ($penjualan_bersih_sales >= 28650000) {
-                                    $persen_sales = 12;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 0;
-                                }elseif ($penjualan_bersih_sales >= 33650000) {
-                                    $persen_sales = 14;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 0;
-                                }elseif ($penjualan_bersih_sales >= 38999999) {
-                                    $persen_sales = 16;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 0;
-                                }elseif ($penjualan_bersih_sales >= 39000000) {
-                                    $persen_sales = 19;
-                                    $insentif_sales = $penjualan_bersih_sales * $persen_sales / 100;
-                                    $bonus_sales = 500000;
-                                }else{
-                                    $persen_sales = 0;
-                                    $insentif_sales = 0;
-                                    $bonus_sales = 0;
-                                }
-                            // end insentif
-
-                            $gaji_sales = $insentif_sales + $bonus_sales;
-                            $cn_sales = DB::table('tbl_cn')->where('sales', $nik_array->nik)->where('tgl_penarikan','>=',$periode_now->tgl_awal)->sum('nominal');
-                            $kasbon_sales = DB::table('tbl_kasbon')->where('nik', $nik_array->nik)->where('tgl_kasbon','>=', $periode_now->tgl_awal)->sum('nom_kasbon');
-
-                            $total_gaji_sales = $gaji_sales - $kasbon_sales;
-
-                            DB::table('tbl_gaji')->updateOrInsert([
-                            // $save = ([
-                                'nik' => $sales_array->nik,
-                                'nama' => $sales_array->nama,
-                                'jabatan' =>  $sales_array->nama_jabatan,
-                                'periode' => $periode_now->periode,
-                                'tahun' => $periode_now->tahun_periode,
-                                'penjualan' =>  $total_penjualan_sales,
-                                'cn' => $cn_sales,
-                                'penjualan_bersih' => $penjualan_bersih_sales,
-                                'incentive_persen' => $persen_sales,
-                                'incentive' => $insentif_sales,
-                                'bonus' => $bonus_sales,
-                                'tunjangan_ops' => '',
-                                'gaji' => $gaji_sales,
-                                'kasbon' => $cn_sales,
-                                'total_gaji' => $total_gaji_sales,
-                                'nik_kdiv' => $up_level->kdiv_marketing,
-                                'nik_gtm' => $up_level->gt_manager,
-                                'nik_tm' => $up_level->t_manager,
-                                'tgl_open_tm' => $periode_now->tgl_awal,
-                                'tgl_close_tm' => $periode_now->tgl_akhir,
-                            ]);
-
-                        }
-                }
+                        DB::table('tbl_gaji')->updateOrInsert([
+                        // $save = ([
+                            'nik' => $sales->nik,
+                            'nama' => $sales->nama,
+                            'jabatan' =>  $sales->nama_jabatan,
+                            'periode' => $sales->periode,
+                            'tahun' => $sales->tahun_periode,
+                            'penjualan' =>  $nominal_penjualan_sales,
+                            'cn' => $cn_sales,
+                            'penjualan_bersih' => $penjualan_bersih_sales,
+                            'incentive_persen' => $persen_sales,
+                            'incentive' => $insentif_sales,
+                            'bonus' => $bonus_sales,
+                            'tunjangan_ops' => '',
+                            'gaji' => $gaji_sales,
+                            'kasbon' => $kasbon_sales,
+                            'total_gaji' => $total_gaji_sales,
+                            'nik_kdiv' => $sales->kdiv_marketing,
+                            'nik_gtm' => $sales->gt_manager,
+                            'nik_tm' => $sales->t_manager,
+                            'tgl_open_tm' => $sales->tgl_awal,
+                            'tgl_close_tm' => $sales->tgl_akhir,
+                        ]);
+                        // dd($save);
+                    }
             //end gaji sales
             
-            //gaji tm
-                foreach ($data_tm as $nik_array) {
-
-                    $tm_detail = DB::table('tbl_karyawan as a')->where('nik',$nik_array->nik)
-                        ->leftJoin('tbl_jabatan as b', 'a.jabatan', 'b.kode_jabatan')
-                        ->get();
-
-                    foreach ($tm_detail as $tm_array) {
-                        $penjualan_tm = DB::table('tbl_penjualan_master')->where('t_manager',$tm_array->nik)
-                        ->get();
-
-                        $up_level = $penjualan_tm->first();
-
-                        $total_penjualan_tm = $penjualan_tm->sum('total_harga');
-                        $cn_tm = $penjualan_tm->sum('cn');
-                        $penjualan_bersih_tm = $total_penjualan_tm - $cn_tm;
-
+            //gaji TM
+                $penjualan_tm = DB::table('tbl_penjualan_master as a')
+                ->whereIn('t_manager',$data_tm)
+                ->where('sts_flow',4)
+                ->leftJoin('tbl_group_marketing as b','a.sales','b.nik_sales')
+                ->leftJoin('tbl_karyawan as c','a.t_manager','c.nik')
+                ->leftJoin('tbl_jabatan as d','c.jabatan','d.kode_jabatan')
+                ->leftJoin('tbl_periode as e','a.t_manager','e.nik_tm')
+                ->where('tgl_akhir',null)
+                ->get(); 
+                    foreach ($penjualan_tm->unique('t_manager') as $tm) {  
+                        $nominal_penjualan_tm=$penjualan_tm->where('t_manager',$tm->t_manager)->sum('total_harga');
+                        $cn_tm =DB::table('tbl_cn')->where('koordinator',$tm->t_manager)->sum('nominal');
+                        $penjualan_bersih_tm = $nominal_penjualan_tm - $cn_tm;
                         // insentif
                             if ($penjualan_bersih_tm < 150000000) {
                                 $persen_tm = 0;
@@ -210,57 +197,52 @@ class GajiController extends Controller
                                 $tunjangan_ops_tm = 2500000;
                             }
                         // end insentif
-
                         $gaji_tm = $insentif_tm + $tunjangan_ops_tm;
-                        $cn_tm = DB::table('tbl_cn')->where('koordinator', $nik_array->nik)->where('tgl_penarikan','>=',$periode_now->tgl_awal)->sum('nominal');
-                        $kasbon_tm = DB::table('tbl_kasbon')->where('nik', $nik_array->nik)->where('tgl_kasbon','>=', $periode_now->tgl_awal)->sum('nom_kasbon');
-
+                        $kasbon_tm = DB::table('tbl_kasbon')->where('nik',$tm->nik)->sum('nom_kasbon');
                         $total_gaji_tm = $gaji_tm - $kasbon_tm;
 
-                        DB::table('tbl_gaji')->Insert([
+                        DB::table('tbl_gaji')->updateOrInsert([
                         // $save = ([
-                            'nik' => $tm_array->nik,
-                            'nama' => $tm_array->nama,
-                            'jabatan' => $tm_array->nama_jabatan,
-                            'periode' => $periode_now->periode,
-                            'tahun' => $periode_now->tahun_periode,
-                            'penjualan' =>  $total_penjualan_tm,
+                            'nik' => $tm->nik,
+                            'nama' => $tm->nama,
+                            'jabatan' =>  $tm->nama_jabatan,
+                            'periode' => $tm->periode,
+                            'tahun' => $tm->tahun_periode,
+                            'penjualan' =>  $nominal_penjualan_tm,
                             'cn' => $cn_tm,
-                            'penjualan_bersih' =>  $penjualan_bersih_tm,
-                            'incentive_persen' => $persen_tm ,
+                            'penjualan_bersih' => $penjualan_bersih_tm,
+                            'incentive_persen' => $persen_tm,
                             'incentive' => $insentif_tm,
-                            'bonus' => '0',
+                            'bonus' => '',
                             'tunjangan_ops' => $tunjangan_ops_tm,
                             'gaji' => $gaji_tm,
                             'kasbon' => $kasbon_tm,
                             'total_gaji' => $total_gaji_tm,
-                            'nik_kdiv' => $up_level->kdiv_marketing,
-                            'nik_gtm' => $up_level->gt_manager,
-                            'nik_tm' => $up_level->t_manager,
-                            'tgl_open_tm' => $periode_now->tgl_awal,
-                            'tgl_close_tm' => $periode_now->tgl_akhir,
+                            'nik_kdiv' => $tm->kdiv_marketing,
+                            'nik_gtm' => $tm->gt_manager,
+                            'nik_tm' => $tm->t_manager,
+                            'tgl_open_tm' => $tm->tgl_awal,
+                            'tgl_close_tm' => $tm->tgl_akhir,
                         ]);
-                    }     
-                }
-            // end gaji tm
+                        // dd($save);
+                    }
+            //end gaji TM
             
-            //gaji gtm
-                foreach ($data_gtm as $nik_array) {
-
-                    $gtm_detail = DB::table('tbl_karyawan as a')->where('nik',$nik_array->nik)
-                        ->leftJoin('tbl_jabatan as b', 'a.jabatan', 'b.kode_jabatan')
-                        ->get();
-
-                    foreach ($gtm_detail as $gtm_array) {
-                        $penjualan_gtm = DB::table('tbl_penjualan_master')->where('gt_manager',$gtm_array->nik)
-                        ->get();
-
-                        $up_level_gtm = $penjualan_gtm->first();
-
-                        $total_penjualan_gtm = $penjualan_gtm->sum('total_harga');
-                        $cn_gtm = $penjualan_gtm->sum('cn');
-                        $penjualan_bersih_gtm = $total_penjualan_gtm - $cn_gtm;
-
+            //gaji GTM
+                $penjualan_gtm = DB::table('tbl_penjualan_master as a')
+                ->whereIn('gt_manager',$data_gtm)
+                ->where('sts_flow',4)
+                ->leftJoin('tbl_group_marketing as b','a.sales','b.nik_sales')
+                ->leftJoin('tbl_karyawan as c','a.gt_manager','c.nik')
+                ->leftJoin('tbl_jabatan as d','c.jabatan','d.kode_jabatan')
+                ->leftJoin('tbl_periode as e','a.t_manager','e.nik_tm')
+                ->where('tgl_akhir',null)
+                ->get(); 
+                    foreach ($penjualan_gtm->unique('gt_manager') as $gtm) {  
+                        // dd($penjualan_gtm);
+                        $nominal_penjualan_gtm=$penjualan_gtm->where('gt_manager',$gtm->gt_manager)->sum('total_harga');
+                        $cn_gtm =DB::table('tbl_cn')->where('koordinator',$gtm->sales)->sum('nominal');
+                        $penjualan_bersih_gtm = $nominal_penjualan_gtm - $cn_gtm;
                         // insentif gtm
                             if ($penjualan_bersih_gtm <150000000) {
                                 $persen_gtm = 0;
@@ -279,59 +261,54 @@ class GajiController extends Controller
                                 $incentive_gtm = $penjualan_bersih_gtm * $persen_gtm / 100;
                                 $tunjangan_ops_gtm = 4500000;
                             }
-                //     // end insentif
-
+                         // end insentif
                         $gaji_gtm = $incentive_gtm + $tunjangan_ops_gtm;
-                        $cn_gtm = DB::table('tbl_cn')->where('supervisor_mrk', $nik_array->nik)->where('tgl_penarikan','>=',$periode_now->tgl_awal)->sum('nominal');
-                        $kasbon_gtm = DB::table('tbl_kasbon')->where('nik', $nik_array->nik)->where('tgl_kasbon','>=', $periode_now->tgl_awal)->sum('nom_kasbon');
+                        $kasbon_gtm = DB::table('tbl_kasbon')->where('nik',$gtm->nik)->sum('nom_kasbon');
+                        $total_gaji_gtm = $gaji_tm - $kasbon_tm;
 
-                        $total_gaji_gtm = $gaji_gtm - $kasbon_gtm;
-
-                        DB::table('tbl_gaji')->Insert([
-                            'nik' => $gtm_array->nik,
-                            'nama' => $gtm_array->nama,
-                            'jabatan' => $gtm_array->nama_jabatan,
-                            'periode' => $periode_now->periode,
-                            'tahun' => $periode_now->tahun_periode,
-                            'penjualan' =>  $total_penjualan_gtm,
+                        DB::table('tbl_gaji')->updateOrInsert([
+                        // $save = ([
+                            'nik' => $gtm->nik,
+                            'nama' => $gtm->nama,
+                            'jabatan' =>  $gtm->nama_jabatan,
+                            'periode' => $gtm->periode,
+                            'tahun' => $gtm->tahun_periode,
+                            'penjualan' =>  $nominal_penjualan_gtm,
                             'cn' => $cn_gtm,
-                            'penjualan_bersih' =>  $penjualan_bersih_gtm,
-                            'incentive_persen' => $persen_gtm ,
+                            'penjualan_bersih' => $penjualan_bersih_gtm,
+                            'incentive_persen' => $persen_gtm,
                             'incentive' => $incentive_gtm,
-                            'bonus' => '0',
+                            'bonus' => '',
                             'tunjangan_ops' => $tunjangan_ops_gtm,
                             'gaji' => $gaji_gtm,
                             'kasbon' => $kasbon_gtm,
                             'total_gaji' => $total_gaji_gtm,
-                            'nik_kdiv' => $up_level_gtm->kdiv_marketing,
-                            'nik_gtm' => $up_level_gtm->gt_manager,
-                            'nik_tm' => $up_level_gtm->t_manager,
-                            'tgl_open_tm' => $periode_now->tgl_awal,
-                            'tgl_close_tm' => $periode_now->tgl_akhir,
+                            'nik_kdiv' => $gtm->kdiv_marketing,
+                            'nik_gtm' => $gtm->gt_manager,
+                            'nik_tm' => $gtm->t_manager,
+                            'tgl_open_tm' => $gtm->tgl_awal,
+                            'tgl_close_tm' => $gtm->tgl_akhir,
                         ]);
-                    }     
-                }
-            // end gaji gtm
+                        // dd($save);
+                    }
+            //end gaji GTM
             
-            //gaji kdiv
-                foreach ($data_kdiv as $nik_array) {
-
-                    $kdiv_detail = DB::table('tbl_karyawan as a')->where('nik',$nik_array->nik)
-                        ->leftJoin('tbl_jabatan as b', 'a.jabatan', 'b.kode_jabatan')
-                        ->get();
-
-                    foreach ($kdiv_detail as $kdiv_array) {
-                        $penjualan_kdiv = DB::table('tbl_penjualan_master')->where('kdiv_marketing',$kdiv_array->nik)
-                        ->get();
-
-                        $up_level_kdiv = $penjualan_kdiv->first();
-                        // dd($kdiv_array);
-
-                        $total_penjualan_kdiv = $penjualan_kdiv->sum('total_harga');
-                        $cn_kdiv = $penjualan_kdiv->sum('cn');
-                        $penjualan_bersih_kdiv = $total_penjualan_kdiv - $cn_kdiv;
-
-                        // insentif gtm
+            //gaji KDIV
+                $penjualan_kdiv = DB::table('tbl_penjualan_master as a')
+                ->whereIn('kdiv_marketing',$data_kdiv)
+                ->where('sts_flow',4)
+                ->leftJoin('tbl_group_marketing as b','a.sales','b.nik_sales')
+                ->leftJoin('tbl_karyawan as c','a.kdiv_marketing','c.nik')
+                ->leftJoin('tbl_jabatan as d','c.jabatan','d.kode_jabatan')
+                ->leftJoin('tbl_periode as e','a.t_manager','e.nik_tm')
+                ->where('tgl_akhir',null)
+                ->get(); 
+                // dd($penjualan_kdiv);
+                    foreach ($penjualan_kdiv->unique('kdiv_marketing') as $kdiv) {  
+                        $nominal_penjualan_kdiv=$penjualan_kdiv->where('kdiv_marketing',$kdiv->kdiv_marketing)->sum('total_harga');
+                        $cn_kdiv =DB::table('tbl_cn')->where('koordinator',$kdiv->sales)->sum('nominal');
+                        $penjualan_bersih_kdiv = $nominal_penjualan_kdiv - $cn_kdiv;
+                         // insentif gtm
                             if ($penjualan_bersih_kdiv < 150000000) {
                                 $persen_kdiv = 0;
                                 $incentive_kdiv = 0;
@@ -347,47 +324,44 @@ class GajiController extends Controller
                             }
                         // end insentif
                         $jumlah_tm = DB::table('tbl_penjualan_master')
-                        ->where('tgl_jual','>=',$periode_now->tgl_awal)
+                        ->where('tgl_jual','>=',$kdiv->tgl_awal)
                         ->where('sts_flow',4)
-                        ->where('kdiv_marketing',$kdiv_array->nik)
+                        ->where('kdiv_marketing',$kdiv->nik)
                         ->distinct()
                         ->count('t_manager');
 
                         $tunjangan_ops_kdiv = $jumlah_tm * 2000000 ;
 
                         $gaji_kdiv = $incentive_kdiv + $tunjangan_ops_kdiv;
-                        $cn_kdiv = DB::table('tbl_cn')->where('kdiv', $nik_array->nik)->where('tgl_penarikan','>=',$periode_now->tgl_awal)->sum('nominal');
-                        $kasbon_kdiv = DB::table('tbl_kasbon')->where('nik', $nik_array->nik)->where('tgl_kasbon','>=', $periode_now->tgl_awal)->sum('nom_kasbon');
+                        $kasbon_kdiv = DB::table('tbl_kasbon')->where('nik',$kdiv->nik)->sum('nom_kasbon');
+                        $total_gaji_kdiv = $gaji_tm - $kasbon_tm;
 
-                        $total_gaji_kdiv = $gaji_kdiv - $kasbon_kdiv;
-
-                        DB::table('tbl_gaji')->Insert([
+                        DB::table('tbl_gaji')->updateOrInsert([
                         // $save = ([
-                            'nik' => $kdiv_array->nik,
-                            'nama' => $kdiv_array->nama,
-                            'jabatan' => $kdiv_array->nama_jabatan,
-                            'periode' => $periode_now->periode,
-                            'tahun' => $periode_now->tahun_periode,
-                            'penjualan' =>  $total_penjualan_kdiv,
+                            'nik' => $kdiv->nik,
+                            'nama' => $kdiv->nama,
+                            'jabatan' =>  $kdiv->nama_jabatan,
+                            'periode' => $kdiv->periode,
+                            'tahun' => $kdiv->tahun_periode,
+                            'penjualan' =>  $nominal_penjualan_kdiv,
                             'cn' => $cn_kdiv,
-                            'penjualan_bersih' =>  $penjualan_bersih_kdiv,
-                            'incentive_persen' => $persen_kdiv ,
+                            'penjualan_bersih' => $penjualan_bersih_kdiv,
+                            'incentive_persen' => $persen_kdiv,
                             'incentive' => $incentive_kdiv,
-                            'bonus' => '0',
+                            'bonus' => '',
                             'tunjangan_ops' => $tunjangan_ops_kdiv,
                             'gaji' => $gaji_kdiv,
                             'kasbon' => $kasbon_kdiv,
                             'total_gaji' => $total_gaji_kdiv,
-                            'nik_kdiv' => $up_level_kdiv->kdiv_marketing,
-                            'nik_gtm' => $up_level_kdiv->gt_manager,
-                            'nik_tm' => $up_level_kdiv->t_manager,
-                            'tgl_open_tm' => $periode_now->tgl_awal,
-                            'tgl_close_tm' => $periode_now->tgl_akhir,
+                            'nik_kdiv' => $kdiv->kdiv_marketing,
+                            'nik_gtm' => $kdiv->gt_manager,
+                            'nik_tm' => $kdiv->t_manager,
+                            'tgl_open_tm' => $kdiv->tgl_awal,
+                            'tgl_close_tm' => $kdiv->tgl_akhir,
                         ]);
-                                                // dd($save);
-                    }     
-                }
-            // end gaji kdiv
+                        // dd($save);
+                    }
+            //end gaji KDIV
 
         }
 
