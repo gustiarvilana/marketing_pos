@@ -30,6 +30,7 @@
                         <option value="11">(11) November - Desember</option>
                         <option value="11">(12) Desember - Januari-new</option>
                     </select>
+                    <button type="submit">Go</button>
                 </form>
                 </div>
         </div>
@@ -45,8 +46,8 @@
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Jumlah SP Baru</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @if ($penjualan)
-                                    {{ $penjualan->where('sts_flow','1')->count() }}
+                                @if ($jml_sp_baru)
+                                    {{ $jml_sp_baru->count() }}
                                 @else
                                     0
                                 @endif
@@ -69,8 +70,8 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 SP Verif</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @if ($penjualan)
-                                    {{ $penjualan->where('sts_flow','2')->count() }}
+                                @if ($jml_sp_verif)
+                                    {{ $jml_sp_verif->count() }}
                                 @else
                                     0
                                 @endif
@@ -95,8 +96,8 @@
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
                                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                       @if ($penjualan)
-                                           {{ $penjualan->where('sts_flow','4')->count() }}
+                                       @if ($jml_sp_terkirim)
+                                           {{ $jml_sp_terkirim->count() }}
                                        @else
                                            0
                                        @endif 
@@ -141,8 +142,8 @@
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                 Tidak lolos Verif</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @if ($penjualan)
-                                    {{ $penjualan->where('sts_flow','20')->count() }}
+                                @if ($jml_sp_tolak_verif)
+                                    {{ $jml_sp_tolak_verif->count() }}
                                 @else
                                     0
                                 @endif
@@ -165,8 +166,8 @@
                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                 Tidak Terkirim</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @if ($penjualan)
-                                    {{ $penjualan->where('sts_flow','30')->count() }}
+                                @if ($jml_sp_tolak_kirim)
+                                    {{ $jml_sp_tolak_kirim->count() }}
                                 @else
                                     0
                                 @endif
@@ -223,40 +224,24 @@
                                 <th> Nik </th>
                                 <th width=25%> Nama </th>
                                 <th width=25%> Periode Awal </th>
+                                <th width=25%> Periode Akhir </th>
                                 <th width=25%> Penjualan </th>
                                 <th> CN </th>
                                 <th width=25%> Total Penjualan </th>
                             </tr>
                             </thead>
                             <tbody>
-                                @if ($nik_gtm)
-                                    @php
-                                        $i=1;
-                                    @endphp
-                                    @foreach ($nik_gtm as $gtm)
-                                        <tr>
-                                            {{-- <td>{{ $i ++ }}</td> --}}
-                                            <td>{{ $gtm->gt_manager }}</td>
-                                            <td>{{ $karyawan->where('nik',$gtm->gt_manager)->first()->nama }}</td>
-                                            <td>{{ $periode_berjalan->where('nik_gtm',$gtm->gt_manager)->where('tgl_akhir',null)->first()->tgl_awal }} ~</td>
-                                            <td>Rp. {{format_uang ($penjualan->where('gt_manager',$gtm->gt_manager)->sum('total_harga')) }}</td>
-                                            <td>Rp. {{ format_uang($penjualan->where('gt_manager',$gtm->gt_manager)->sum('cn')) }}</td>
-                                            <td>
-                                                Rp. {{ format_uang($penjualan->where('gt_manager',$gtm->gt_manager)->sum('total_harga') - $penjualan->where('gt_manager',$gtm->gt_manager)->sum('cn')) }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @else
+                                 @foreach ($penjualan->unique('kdiv_marketing') as $item)
                                     <tr>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
+                                        <td>{{ $item->kdiv_marketing }}</td>
+                                        <td>{{ $item->nama_kdiv }}</td>
+                                        <td>{{ $item->tgl_awal }}</td>
+                                        <td>{{ $item->tgl_akhir }}</td>
+                                        <td>{{ $penjualan->where('kdiv_marketing',$item->kdiv_marketing)->sum('total_harga') }}</td>
+                                        <td>{{ $penjualan->where('kdiv_marketing',$item->kdiv_marketing)->sum('cn') }}</td>
+                                        <td>{{ $penjualan->where('kdiv_marketing',$item->kdiv_marketing)->sum('total_harga') - $penjualan->where('kdiv_marketing',$item->kdiv_marketing)->sum('cn') }}</td>
                                     </tr>
-                                @endif
-                            
+                                @endforeach
                             </tbody>
                     </table>
                 </div>
@@ -279,48 +264,28 @@
                             <tr>
                                 {{-- <th> No </th> --}}
                                 <th> Nik </th>
-                                <th width=25%> Nama </th>
+                                <th width=25%> Nama TM </th>
                                 <th width=25%> Nama GTM </th>
                                 <th width=25%> Periode Awal </th>
+                                <th width=25%> Periode Akhir </th>
                                 <th> Penjualan </th>
                                 <th> (CN) </th>
                                 <th width=25%> Total Penjualan </th>
                             </tr>
                             </thead>
                             <tbody>
-                                @if ($nik_tm)
-                                    @php
-                                        $i=1;
-                                    @endphp
-                                    @foreach ($nik_tm as $tm)
-                                        @php
-                                            $tgl_awal = $periode_berjalan->where('nik_tm',$tm->t_manager)->first()->tgl_awal;
-                                        @endphp
-                                        <tr>
-                                            {{-- <td>{{ $i ++ }}</td> --}}
-                                            <td>{{ $tm->t_manager }}</td>
-                                            <td>{{ $karyawan->where('nik',$tm->t_manager)->first()->nama }}</td>
-                                            <td>{{ $group->where('nik_tm',$tm->t_manager)->first()->nama_gtm }}</td>
-                                            <td>{{ $tgl_awal }} ~</td>
-                                            <td>Rp. {{ format_uang($penjualan->where('t_manager',$tm->t_manager)->where('tgl_jual','>=',$tgl_awal)->sum('total_harga')) }}</td>
-                                            <td>Rp. {{ format_uang ($penjualan->where('t_manager',$tm->t_manager)->where('tgl_jual','>=',$tgl_awal)->sum('cn')) }}</td>
-                                            <td>
-                                                Rp. {{ format_uang ($penjualan->where('t_manager',$tm->t_manager)->where('tgl_jual','>=',$tgl_awal)->sum('total_harga') - $penjualan->where('t_manager',$tm->t_manager)->where('tgl_jual',$tgl_awal)->sum('cn')) }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @else
+                                @foreach ($penjualan->unique('t_manager') as $item)
                                     <tr>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                            <td>0</td>
-                                        </tr>
-                                @endif
-                                
+                                        <td>{{ $item->t_manager }}</td>
+                                        <td>{{ $item->nama_tm }}</td>
+                                        <td>{{ $item->nama_gtm }}</td>
+                                        <td>{{ $item->tgl_awal }}</td>
+                                        <td>{{ $item->tgl_akhir }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('total_harga') }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('cn') }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('total_harga') - $penjualan->where('t_manager',$item->t_manager)->sum('cn') }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                     </table>
                 </div>
@@ -342,50 +307,31 @@
                         <thead class="thead-inverse">
                             <tr>
                                 {{-- <th> No </th> --}}
-                                <th> Nik </th>
-                                <th width=25%> Nama </th>
+                                <th> Nik Sales </th>
+                                <th width=25%> Nama Sales </th>
                                 <th> Nama TM </th>
                                 <th> Nama GTM </th>
                                 <th width=25%> Periode Awal </th>
+                                <th width=25%> Periode Akhir </th>
                                 <th> Penjualan </th>
                                 <th> (CN) </th>
                                 <th width=25%> Total Penjualan </th>
                             </tr>
                             </thead>
                             <tbody>            
-                                
-                                @if ($nik_sales)
-                                    @php
-                                        $i=1;
-                                        $tgl_awal = $periode_berjalan->where('nik_tm',$penjualan->first()->t_manager)->where('tgl_akhir',null)->first()->tgl_awal;
-                                    @endphp
-                                    @foreach ($nik_sales as $sales)
-                                        <tr>
-                                            {{-- <td>{{ $i ++ }}</td> --}}
-                                            <td>{{ $sales->sales }}</td>
-                                            <td>{{ $karyawan->where('nik',$sales->sales)->first()->nama }}</td>
-                                            <td>{{ $group->where('nik_sales',$sales->sales)->first()->nama_tm }}</td>
-                                            <td>{{ $group->where('nik_sales',$sales->sales)->first()->nama_gtm }}</td>
-                                            <td>{{ $tgl_awal}} ~</td>
-                                            <td>Rp. {{  format_uang ($penjualan->where('sales',$sales->sales)->where('tgl_jual','>=',$tgl_awal)->sum('total_harga')) }}</td>
-                                            <td>Rp. {{ format_uang ($penjualan->where('sales',$sales->sales)->where('tgl_jual','>=',$tgl_awal)->sum('cn')) }}</td>
-                                            <td>
-                                                Rp. {{ format_uang ($penjualan->where('sales',$sales->sales)->where('tgl_jual','>=',$tgl_awal)->sum('total_harga') - $penjualan->where('sales',$sales->sales)->where('tgl_jual','>=',$tgl_awal)->sum('cn')) }}
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @else
+                               @foreach ($penjualan->unique('sales') as $item)
                                     <tr>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
+                                        <td>{{ $item->sales }}</td>
+                                        <td>{{ $item->nama_sales }}</td>
+                                        <td>{{ $item->nama_tm }}</td>
+                                        <td>{{ $item->nama_gtm }}</td>
+                                        <td>{{ $item->tgl_awal }}</td>
+                                        <td>{{ $item->tgl_akhir }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('total_harga') }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('cn') }}</td>
+                                        <td>{{ $penjualan->where('t_manager',$item->t_manager)->sum('total_harga') - $penjualan->where('t_manager',$item->t_manager)->sum('cn') }}</td>
                                     </tr>
-                                @endif
-                                
+                                @endforeach
                             </tbody>
                     </table>
                 </div>
@@ -401,7 +347,7 @@
 
 @push('script')
 <script>
-
+    let tahun = $("#filter_tahun").val()
     $(document).ready(function () {
 
         var table = $('.table').DataTable({

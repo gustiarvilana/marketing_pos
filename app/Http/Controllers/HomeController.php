@@ -18,30 +18,70 @@ class HomeController extends Controller
 
         $periode = $request -> input('periode'); 
 
+        // dd($periode);
+        // $periode = '1';
+
+        if (Auth::user()->level == 31) {
+            $level_login = 'sales';
+        }
         if (Auth::user()->level == 32) {
-            $level = 't_manager';
-            $level_group = 'nik_tm';
+            $level_login = 't_manager';
         }
         if (Auth::user()->level == 23) {
-            $level = 'gt_manager';
-            $level_group = 'nik_gtm';
+            $level_login = 'gt_manager';
         }
         if (Auth::user()->level == 25) {
-            $level = 'kdiv_marketing';
-            $level_group = 'nik_kdiv';
+            $level_login = 'kdiv_marketing';
         }
 
-        $periode = DB::table('tbl_periode')->orderBy('tahun_periode','desc')->orderBy('periode','desc')->get();
-        $periode_berjalan = DB::table('tbl_periode')->where('tgl_akhir',null)->get();
-        $karyawan = DB::table('tbl_karyawan')->get();
         
-        $penjualan = DB::table('tbl_penjualan_master')->where($level,Auth::user()->nik)->get();
-        $nik_gtm = DB::table('tbl_penjualan_master')->where($level,Auth::user()->nik)->distinct()->get('gt_manager');
-        $nik_tm = DB::table('tbl_penjualan_master')->where($level,Auth::user()->nik)->distinct()->get('t_manager');
-        $nik_sales = DB::table('tbl_penjualan_master')->where($level,Auth::user()->nik)->distinct()->get('sales');
-        $group = DB::table('tbl_group_marketing')->where($level_group,Auth::user()->nik)->get();
-        // dd($periode_berjalan);
-        return view('dashboard',compact('penjualan','karyawan','periode_berjalan','nik_gtm','nik_tm','nik_sales','group'));
+         // card Header
+            $jml_sp_baru = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->where('tgl_akhir',null)->where('sts_flow','1');
+            $jml_sp_verif = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->where('tgl_akhir',null)->where('sts_flow','2');
+            $jml_sp_terkirim = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->where('tgl_akhir',null)->where('sts_flow','4');
+            $jml_sp_tolak_verif = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->where('tgl_akhir',null)->where('sts_flow','20');
+            $jml_sp_tolak_kirim = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->where('tgl_akhir',null)->where('sts_flow','30');
+        // card Header
+        
+        // penjualan kdiv
+            $penjualan = $jml_sp_terkirim
+            ->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')
+            ->where($level_login,Auth::user()->nik)
+            ->where('tgl_jual','>=','tgl_awal')
+            ->get();
+        // end penjualan kdiv
+
+        if ($periode) {
+            // card Header
+                $jml_sp_baru = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')->where('periode',$periode)->where('sts_flow','1');
+                $jml_sp_verif = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')->where('periode',$periode)->where('sts_flow','2');
+                $jml_sp_terkirim = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')->where('periode',$periode)->where('sts_flow','4');
+                $jml_sp_tolak_verif = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')->where('periode',$periode)->where('sts_flow','20');
+                $jml_sp_tolak_kirim = DB::table('tbl_penjualan_master as a')->leftJoin('tbl_periode as b','a.t_manager','b.nik_tm')->leftJoin('tbl_group_marketing as c','a.sales','c.nik_sales')->where('periode',$periode)->where('sts_flow','30');
+            // card Header
+            
+                // penjualan kdiv
+                $penjualan = $jml_sp_terkirim
+                ->where($level_login,Auth::user()->nik)
+                ->get();
+                // end penjualan kdiv
+        }
+
+        dd($penjualan);
+        
+        
+        
+        return view('dashboard', compact(
+            'jml_sp_baru',
+            'jml_sp_verif',
+            'jml_sp_terkirim',
+            'jml_sp_tolak_verif',
+            'jml_sp_tolak_kirim',
+
+            'penjualan',
+            'periode',
+            
+        ));
     }
 
     /**

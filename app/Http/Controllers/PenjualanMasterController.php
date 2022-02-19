@@ -289,17 +289,13 @@ class PenjualanMasterController extends Controller
      public function detail($id)
     {
         
-        $customer = DB::table('tbl_penjualan_master')->where('t_manager',Auth::user()->nik)
-        ->where('nosp',$id)->first();
-        
-        if ($customer) {
-            $produk = DB::table('tbl_penjualan_detail')
-            ->where('nosp',$id)->get();
-        }
-
+        $customer = DB::table('tbl_penjualan_master')->where('nosp',$id)->first();
         
         // dd($customer);
-        
+        if ($customer) {
+            $produk = DB::table('tbl_penjualan_detail')->where('nosp',$id)->get();
+        }
+
         return view('penjualan_master.detail2', compact('customer', 'produk'));
         // return response()->json($customer);
     }
