@@ -127,9 +127,9 @@ class PenjualanDetailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request) 
     {
-        $produk = produk::where('id_produk', $request->id_produk)->first();
+        $produk = DB::table('tbl_produk')->where('id_produk', $request->id_produk)->first();
         if (! $produk) {
             return response()->json('Data gagal disimpan', 400);
         }
