@@ -67,7 +67,7 @@ class HomeController extends Controller
                 // end penjualan kdiv
         }
 
-        dd($penjualan);
+        // dd($penjualan);
         
         
         
