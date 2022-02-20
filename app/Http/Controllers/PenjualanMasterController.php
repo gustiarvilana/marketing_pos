@@ -58,7 +58,7 @@ class PenjualanMasterController extends Controller
         )
         ->orderBy('id_penjualan','DESC');
         
-        if ($filter_tahun != null && $filter_bulan != null) {
+        if ($filter_tahun && $filter_bulan) {
             
             if ($periode) {
                 $tgl_awal = $periode->tgl_awal;
@@ -87,6 +87,7 @@ class PenjualanMasterController extends Controller
                         'e.nama_gtm',
                         )
                         ->orderBy('id_penjualan','DESC');
+                        // dd($tgl_awal);
                         
                          if ($filter_flow != null) {
                             $penjualan = DB::table('tbl_penjualan_master as a')

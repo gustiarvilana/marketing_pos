@@ -100,17 +100,20 @@ class KasbonController extends Controller
         if (Auth::user()->level == '32') {
             $w_nik = 'nik_tm';
             $w_nama = 'nama_sales';
+            $nik_pluck = 'nik_sales';
         }
         if (Auth::user()->level == '23') {
             $w_nik = 'nik_gtm';
             $w_nama = 'nama_tm';
+            $nik_pluck = 'nik_tm';
         }
         if (Auth::user()->level == '25') {
             $w_nik = 'nik_kdiv';
             $w_nama = 'nama_gtm';
+            $nik_pluck = 'nik_gtm';
         }
         $nik=Auth::user()->nik;
-        $karyawan =  DB::table('tbl_group_marketing')->where($w_nik, $nik)->orderBy($w_nama,'asc')->get(); 
+        $karyawan =  DB::table('tbl_group_marketing')->where($w_nik, $nik)->orderBy($w_nama,'asc')->pluck( $nik_pluck,$w_nama); 
         
         // dd($karyawan);
         

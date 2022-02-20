@@ -22,6 +22,18 @@
 
 @section('content')
 
+@if (session('msg'))
+    <div>
+        <hr>
+    </div>
+    <div class="alert alert-success text-center">
+        {{ session('msg') }}
+    </div>
+    <div>
+        <hr>
+    </div>            
+@endif
+
 <div class="row">
     <div class="col-lg-12">
         <div class="card shadow mb-4">

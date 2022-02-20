@@ -174,7 +174,7 @@
                             <th width= 50%>
                                 <div class="card">
                                     <div class="card-body">
-                                        <form action="{{ route('verif.show',$customer->nosp) }}" method="put">
+                                        <form action="{{ route('verif.de',$customer->nosp) }}" method="put">
                                             @csrf
                                             <div class="row">
                                                  <div class="col-xs-12 col-sm-12 col-md-12 justify-content-center">

@@ -65,6 +65,7 @@ Route::group(['middleware'=>'auth'],function(){
 
     Route::get('/verif/data', [VerifController::class, 'data'])->name('verif.data');
     Route::get('/verif/detail/{id}', [VerifController::class, 'detail'])->name('verif.detail');
+    Route::put('/verif/delivery', [VerifController::class, 'delivery'])->name('verif.delivery');
     Route::resource('verif', VerifController::class);
 
     Route::get('/delivery/data', [DeliveryController::class, 'data'])->name('delivery.data');

@@ -92,12 +92,12 @@
                     <th>penjualan_bersih</th>
                     <th>incentive</th>
                     <th>bonus</th>
-                    <th>total_gaji</th>
                     <th>kasbon</th>
+                    <th>total_gaji</th>
                     <th>periode</th>
                     <th>tahun</th>
                     <th>tgl_open_tm</th>
-                    <th>Aksi</th>
+                    {{-- <th>Aksi</th> --}}
                 </tr>
             </thead>
             <tbody></tbody>
@@ -135,12 +135,12 @@
                 {data: 'penjualan_bersih'},
                 {data: 'incentive'},
                 {data: 'bonus'},
-                {data: 'total_gaji'},
                 {data: 'kasbon'},
+                {data: 'total_gaji'},
                 {data: 'periode'},
                 {data: 'tahun'},
                 {data: 'tgl_open_tm'},
-                {data: 'aksi'},
+                // {data: 'aksi'},
             ],
 
             // export

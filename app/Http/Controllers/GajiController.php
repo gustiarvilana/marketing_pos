@@ -26,26 +26,27 @@ class GajiController extends Controller
         $filter_tahun = $request->input('tahun');
         $filter_bulan = $request->input('bulan');
 
-        $user = DB::table('tbl_gaji')->where('tgl_close_tm',null)->where($level,Auth::user()->nik);
+        $user = DB::table('tbl_gaji')->where('tgl_close_tm',null)->where($level,Auth::user()->nik)->orderBy('level_jabatan');
        
         if ($filter_tahun != null && $filter_bulan != null ) {
             $user = DB::table('tbl_gaji')   
             ->where('tgl_close_tm','>', 0)
             ->where('tahun', $filter_tahun)
             ->where('periode', $filter_bulan)
-            ->where($level,Auth::user()->nik);
+            ->where($level,Auth::user()->nik)
+            ->orderBy('level_jabatan');
         }
 
         // dd($user);
 
         return datatables()::of($user)
         ->addIndexColumn()
-        ->addColumn('aksi', function($user){
-        return '
-                <button onclick="editform(`'. route('user.update',$user->nik) .'`)" class="btn btn-info btn-xs">Edit</button>
-                <button onclick="deleteform(`'. route('user.destroy',$user->nik) .'`)" class="btn btn-danger btn-xs" style="display:none">Hapus</button>
-            ';
-        })
+        // ->addColumn('aksi', function($user){
+        // return '
+        //         <button onclick="editform(`'. route('user.update',$user->nik) .'`)" class="btn btn-info btn-xs">Edit</button>
+        //         <button onclick="deleteform(`'. route('user.destroy',$user->nik) .'`)" class="btn btn-danger btn-xs" style="display:none">Hapus</button>
+        //     ';
+        // })
         ->rawColumns(['aksi'])
         ->make(true);
     }
@@ -134,6 +135,7 @@ class GajiController extends Controller
                             'nik' => $sales->nik,
                             'nama' => $sales->nama,
                             'jabatan' =>  $sales->nama_jabatan,
+                            'level_jabatan' =>  $sales->level_jabatan,
                             'periode' => $sales->periode,
                             'tahun' => $sales->tahun_periode,
                             'penjualan' =>  $nominal_penjualan_sales,
@@ -206,6 +208,7 @@ class GajiController extends Controller
                             'nik' => $tm->nik,
                             'nama' => $tm->nama,
                             'jabatan' =>  $tm->nama_jabatan,
+                            'level_jabatan' =>  $tm->level_jabatan,
                             'periode' => $tm->periode,
                             'tahun' => $tm->tahun_periode,
                             'penjualan' =>  $nominal_penjualan_tm,
@@ -271,6 +274,7 @@ class GajiController extends Controller
                             'nik' => $gtm->nik,
                             'nama' => $gtm->nama,
                             'jabatan' =>  $gtm->nama_jabatan,
+                            'level_jabatan' =>  $gtm->level_jabatan,
                             'periode' => $gtm->periode,
                             'tahun' => $gtm->tahun_periode,
                             'penjualan' =>  $nominal_penjualan_gtm,
@@ -341,6 +345,7 @@ class GajiController extends Controller
                             'nik' => $kdiv->nik,
                             'nama' => $kdiv->nama,
                             'jabatan' =>  $kdiv->nama_jabatan,
+                            'level_jabatan' =>  $kdiv->level_jabatan,
                             'periode' => $kdiv->periode,
                             'tahun' => $kdiv->tahun_periode,
                             'penjualan' =>  $nominal_penjualan_kdiv,
