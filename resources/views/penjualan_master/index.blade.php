@@ -48,7 +48,7 @@
                 <div class="col-lg-12 col-md-6">
                     <div class="form-inline">
                         <div class="form-group">
-                            <label for="filter_tahun">Pilih Periode Tahun : </label>
+                            <label for="filter_tahun">Pilih Tahun : </label>
                             <select name="filter_tahun" id="filter_tahun" class="form-control m-3 filter">
                                 <option value="">---Pilih Tahun---</option>
                                 <option value="2022">2022</option>
@@ -56,7 +56,7 @@
                                 <option value="2024">2024</option>
                                 <option value="2025">2025</option>
                             </select>
-                            <label for="filter_bulan">Pilih Periode Bulan : </label>
+                            <label for="filter_bulan">Pilih Periode : </label>
                             <select name="filter_bulan" id="filter_bulan" class="form-control m-3 filter">
                                 <option value="">---Pilih Bulan---</option>
                                 <option value="1">(1) Januari - Februari</option>
@@ -78,7 +78,7 @@
                 <div class="col-lg-12 col-md-6">
                     <div class="form-inline">
                          <div class="form-group">
-                            <label for="filter_flow">Pilih Periode Tahun : </label>
+                            <label for="filter_flow">Pilih Status : </label>
                             <select name="filter_flow" id="filter_flow" class="form-control m-3 filter">
                                 <option value="">---Pilih Status---</option>
                                 @foreach ($sts_flow as $item)
