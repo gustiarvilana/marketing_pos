@@ -111,10 +111,10 @@ class VerifController extends Controller
     public function show(Request $request,$id)
     {
         $now=date('Ymd');
-        $data = $request->except(['_token']);
+        $data = $request->except(['_token','nama_verif']);
         $data['tgl_verif'] =$now;
         $data['verifikator'] = $request->input('nama_verif');
-        // dd($data);
+        dd($data);
         DB::table('tbl_penjualan_master')->where('nosp',$id)->update($data);
 
         return redirect()->back()->with('msg', 'Verifikasi success!');
