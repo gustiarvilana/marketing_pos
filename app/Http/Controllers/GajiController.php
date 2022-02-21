@@ -21,20 +21,20 @@ class GajiController extends Controller
         if ($login_level == '25') {
             $level = 'nik_kdiv';
         }
-        // dd($login_level);
-
+        
         $filter_tahun = $request->input('tahun');
         $filter_bulan = $request->input('bulan');
-
+        
         $user = DB::table('tbl_gaji')->where('tgl_close_tm',null)->where($level,Auth::user()->nik)->orderBy('level_jabatan');
-       
-        if ($filter_tahun != null && $filter_bulan != null ) {
+        
+        if ($filter_tahun && $filter_bulan ) {
             $user = DB::table('tbl_gaji')   
             ->where('tgl_close_tm','>', 0)
             ->where('tahun', $filter_tahun)
             ->where('periode', $filter_bulan)
             ->where($level,Auth::user()->nik)
             ->orderBy('level_jabatan');
+            // dd($user->get());
         }
 
         // dd($user);

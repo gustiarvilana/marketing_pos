@@ -31,25 +31,26 @@ class KasbonController extends Controller
         )
         ->orderBy('tgl_kasbon','DESC');
 
-        if ($filter_tahun != null && $filter_bulan != null) {
+        if ($filter_tahun && $filter_bulan) {
             // ambil tanggal periode
             $periode=DB::table('tbl_periode')
             ->where('nik_tm',Auth::user()->nik)
             ->where('tahun_periode',$filter_tahun)
-            ->where('periode',$filter_bulan)->select('tgl_awal','tgl_akhir')
+            ->where('periode',$filter_bulan)
+            ->select('tgl_awal','tgl_akhir')
             ->first();
             // end ambil tanggal periode
             
-            
             if ($periode) {
-                $tgl_awal = $periode->tgl_awal;
+                // $tgl_awal = $periode->tgl_awal;
                 $tgl_akhir = $periode->tgl_akhir;
                 
                 if ($tgl_akhir == null) {
                     $user = DB::table('tbl_kasbon as a')
                     ->leftJoin('tbl_karyawan as b', 'a.nik', 'b.nik')
                     ->leftJoin('tbl_periode as c', 'a.nik', 'c.nik_tm')
-                    ->where('a.tgl_kasbon', '>=' ,$tgl_awal)
+                    ->where('a.periode_tahun',$filter_tahun)
+                    ->where('a.periode_bulan',$filter_bulan)
                     ->select(
                         'a.nik',
                         'b.nama',
@@ -63,7 +64,8 @@ class KasbonController extends Controller
                     $user = DB::table('tbl_kasbon as a')
                     ->leftJoin('tbl_karyawan as b', 'a.nik', 'b.nik')
                     ->leftJoin('tbl_periode as c', 'a.nik', 'c.nik_tm')
-                    ->whereBetween('a.tgl_kasbon', [$tgl_awal, $tgl_akhir])
+                    ->where('a.periode_tahun',$filter_tahun)
+                    ->where('a.periode_bulan',$filter_bulan)
                     ->select(
                         'a.nik',
                         'b.nama',
@@ -138,8 +140,37 @@ class KasbonController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->except('_token','_method','nama');
-        DB::table('tbl_kasbon')->insert($data);
+        if (Auth::user()->level == 32) {
+            $level = 'Sales';
+            $level_periode = 'nik_tm';
+        }
+        if (Auth::user()->level == 23) {
+            $level = 'TM';
+            $level_periode = 'nik_gtm';
+        }
+        if (Auth::user()->level == 25) {
+            $level = 'GTM';
+            $level_periode = 'nik_kdiv';
+        }
+        
+        $periode = DB::table('tbl_periode')
+            ->where($level_periode,Auth::user()->nik)
+            ->where('tgl_akhir',null)
+            ->first();
+
+        $periode_tahun = $periode->tahun_periode;
+        $periode_bulan = $periode->periode;
+
+        DB::table('tbl_kasbon')->insert([
+            'nik' => $request->input('nik'),
+            'level' => $level,
+            'tgl_kasbon' => $request->input('tgl_kasbon'),
+            'nom_kasbon' => $request->input('nom_kasbon'),
+            'ket_keperluan' => $request->input('ket_keperluan'),
+            'batch' => Auth::user()->nik,
+            'periode_tahun' => $periode_tahun,
+            'periode_bulan' => $periode_bulan,
+        ]);
 
         return response()->json('Data Berhasil Disimpan',200);
     }

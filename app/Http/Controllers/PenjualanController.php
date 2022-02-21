@@ -110,6 +110,8 @@ class PenjualanController extends Controller
      */
     public function store(Request $request)
     {
+        // cek periode
+        $periode=DB::table('tbl_periode')->where('nik_tm',Auth::user()->nik)->where('tgl_akhir',null)->first();
         // save penjualan master
         $penjualan = Penjualan::findOrFail($request->id_penjualan);
         $data=$request->all();
@@ -122,6 +124,8 @@ class PenjualanController extends Controller
             $gtm = DB::table('tbl_group_marketing')->where('nik_sales', $sales)->where('nik_tm', $tm)->pluck('nik_gtm')->first();
             $kdiv = DB::table('tbl_group_marketing')->where('nik_sales', $sales)->where('nik_tm', $tm)->where('nik_gtm', $gtm)->pluck('nik_kdiv')->first();
             
+            $data['periode_tahun'] = $periode->tahun_periode;
+            $data['periode_bulan'] = $periode->periode;
             $data['t_manager'] = $tm;
             $data['gt_manager'] = $gtm;
             $data['kdiv_marketing'] = $kdiv;

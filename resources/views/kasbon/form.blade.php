@@ -18,9 +18,9 @@
                         <div class="col-md-6">
                             <select name="nik" id="nik" class="form-control" required>
                                 <option value="">--Pilih Karyawan--</option>
-                                @foreach ($karyawan as $nik => $nama)
+                                @foreach ($karyawan as $nama => $nik)
                                     <option value="{{ $nik }}">{{ $nik }} / {{ $nama }}</option>
-                                @endforeach
+                                @endforeach 
                             </select>
                             <span class="help-block with-errors"></span>
                         </div>

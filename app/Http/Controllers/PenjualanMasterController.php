@@ -63,16 +63,15 @@ class PenjualanMasterController extends Controller
             if ($periode) {
                 $tgl_awal = $periode->tgl_awal;
                 $tgl_akhir = $periode->tgl_akhir;
-
                 
-                if ($tgl_akhir == null) {
                     $penjualan = DB::table('tbl_penjualan_master as a')
                     ->leftJoin('tbl_place_kelurahan as b', 'a.kelurahan','b.subdis_id')
                     ->leftJoin('tbl_place_kecamatan as c', 'a.kecamatan','c.dis_id')
                     ->leftJoin('tbl_place_kota as d', 'a.kota','d.city_id')
                     ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
                     ->where($level,Auth::user()->nik)
-                    ->where('tgl_jual','>=', $tgl_awal)
+                    ->where('periode_tahun',$filter_tahun)
+                    ->where('periode_bulan',$filter_bulan)
                     ->select(
                         'nosp',
                         'nama_customer',
@@ -97,7 +96,8 @@ class PenjualanMasterController extends Controller
                             ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
                             ->where($level,Auth::user()->nik)
                             ->where('sts_flow',$filter_flow)
-                            ->where('tgl_jual','>=', $tgl_awal)
+                            ->where('periode_tahun',$filter_tahun)
+                            ->where('periode_bulan',$filter_bulan)
                             ->select(
                                 'nosp',
                                 'nama_customer',
@@ -113,56 +113,58 @@ class PenjualanMasterController extends Controller
                             )
                             ->orderBy('id_penjualan','DESC');
                         }
-                }
 
-                if ($tgl_awal && $tgl_akhir) {
-                    $penjualan = DB::table('tbl_penjualan_master as a')
-                    ->leftJoin('tbl_place_kelurahan as b', 'a.kelurahan','b.subdis_id')
-                    ->leftJoin('tbl_place_kecamatan as c', 'a.kecamatan','c.dis_id')
-                    ->leftJoin('tbl_place_kota as d', 'a.kota','d.city_id')
-                    ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
-                    ->where($level,Auth::user()->nik)
-                    ->whereBetween('tgl_jual', [$tgl_awal, $tgl_akhir])
-                    ->select(
-                        'nosp',
-                        'nama_customer',
-                        'alamat',
-                        'b.subdis_name',
-                        'dis_name',
-                        'd.city_name',
-                        'tgl_jual',
-                        'sts_flow',
-                        'e.nama_sales',
-                        'e.nama_tm',
-                        'e.nama_gtm',
-                    )
-                    ->orderBy('id_penjualan','DESC');
+                // tutup periode
+                    // if ($tgl_awal && $tgl_akhir) {
+                    //     $penjualan = DB::table('tbl_penjualan_master as a')
+                    //     ->leftJoin('tbl_place_kelurahan as b', 'a.kelurahan','b.subdis_id')
+                    //     ->leftJoin('tbl_place_kecamatan as c', 'a.kecamatan','c.dis_id')
+                    //     ->leftJoin('tbl_place_kota as d', 'a.kota','d.city_id')
+                    //     ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
+                    //     ->where($level,Auth::user()->nik)
+                    //     ->where('periode_tahun',$filter_tahun)
+                    //     ->select(
+                    //         'nosp',
+                    //         'nama_customer',
+                    //         'alamat',
+                    //         'b.subdis_name',
+                    //         'dis_name',
+                    //         'd.city_name',
+                    //         'tgl_jual',
+                    //         'sts_flow',
+                    //         'e.nama_sales',
+                    //         'e.nama_tm',
+                    //         'e.nama_gtm',
+                    //     )
+                    //     ->orderBy('id_penjualan','DESC');
 
-                     if ($filter_flow != null) {
-                        $penjualan = DB::table('tbl_penjualan_master as a')
-                        ->leftJoin('tbl_place_kelurahan as b', 'a.kelurahan','b.subdis_id')
-                        ->leftJoin('tbl_place_kecamatan as c', 'a.kecamatan','c.dis_id')
-                        ->leftJoin('tbl_place_kota as d', 'a.kota','d.city_id')
-                        ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
-                        ->where($level,Auth::user()->nik)
-                        ->where('sts_flow',$filter_flow)
-                        ->whereBetween('tgl_jual', [$tgl_awal, $tgl_akhir])
-                        ->select(
-                            'nosp',
-                            'nama_customer',
-                            'alamat',
-                            'b.subdis_name',
-                            'dis_name',
-                            'd.city_name',
-                            'tgl_jual',
-                            'sts_flow',
-                            'e.nama_sales',
-                            'e.nama_tm',
-                            'e.nama_gtm',
-                        )
-                        ->orderBy('id_penjualan','DESC');
-                    }
-                }
+                    //     if ($filter_flow != null) {
+                    //         $penjualan = DB::table('tbl_penjualan_master as a')
+                    //         ->leftJoin('tbl_place_kelurahan as b', 'a.kelurahan','b.subdis_id')
+                    //         ->leftJoin('tbl_place_kecamatan as c', 'a.kecamatan','c.dis_id')
+                    //         ->leftJoin('tbl_place_kota as d', 'a.kota','d.city_id')
+                    //         ->leftJoin('tbl_group_marketing as e', 'a.sales','e.nik_sales')
+                    //         ->where($level,Auth::user()->nik)
+                    //         ->where('sts_flow',$filter_flow)
+                    //         ->where('periode_bulan',$filter_bulan)
+                    //         ->select(
+                    //             'nosp',
+                    //             'nama_customer',
+                    //             'alamat',
+                    //             'b.subdis_name',
+                    //             'dis_name',
+                    //             'd.city_name',
+                    //             'tgl_jual',
+                    //             'sts_flow',
+                    //             'e.nama_sales',
+                    //             'e.nama_tm',
+                    //             'e.nama_gtm',
+                    //         )
+                    //         ->orderBy('id_penjualan','DESC');
+                    //     }
+                    // }
+                // tutup periode
+                
                 
             }else{
                 $penjualan = DB::table('tbl_penjualan_master')
